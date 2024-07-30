@@ -1,0 +1,81 @@
+Parser:
+  Title: ASIM Audit Event parser for GithubWebhook
+  Version: '0.1.0'
+  LastUpdated: Apr 30, 2024
+Product:
+  Name: GithubWebhook
+Normalization:
+  Schema: AuditEvent
+  Version: '0.1'
+References:
+- Title: ASIM Audit Event Schema
+  Link: https://aka.ms/ASimAuditEventDoc
+- Title: ASIM
+  Link: https:/aka.ms/AboutASIM
+- Title: GithubWebhook
+  Link: https://docs.github.com/en/webhooks/webhook-events-and-payloads
+Description: |
+  This ASIM parser supports normalizing the GithubWebhook logs to the ASIM Audit Event normalized schema.
+ParserName: ASimAuditEventGithubWebhook
+EquivalentBuiltInParser: _ASim_AuditEvent_GithubWebhook
+ParserParams:
+  - Name: disabled
+    Type: bool
+    Default: false
+ParserQuery: |
+  let parser = (
+    disabled:bool = false
+  )
+  {
+    let EventDetailslookup=datatable(EventOriginalType:string,EventResult:string, EventType:string, EventSeverity:string)
+     ["push","Success","Install","Informational",
+      "create","Success","Create","Informational",
+      "delete","Success","Delete","Informational",
+      "repository","Success","Other","Informational",
+      "pull_request","Success","Other","Informational",
+      "membership","Success","Other","Informational",
+      "member","Success","Other","Informational",
+      "fork","Success","Create","Informational",
+      "installation","Success","Create","Informational",
+      "team","Success","Create","Informational",
+      "organization","Success","Other","Informational",
+      "label","Success","Other","Informational"
+      ];
+      githubscanaudit_CL
+      |extend Object=case(event_s == "repository","Repository",
+      event_s =="organization","Organization",
+      event_s=="create","Branch",
+      event_s=="push","Branch",
+      event_s =="installation","Application",
+      event_s == "pull_request","Repository","")
+     |project 
+     TimeGenerated,
+     ActorUsername = tostring(parse_json(sender_s).login),
+     EventReportUrl = tostring(parse_json(repository_s).url),
+     TargetAppName = tostring(parse_json(installation_s).app_slug),   
+     team_s = tostring(parse_json(team_s).name),
+     invitation_s = tostring(parse_json(invitation_s).login),
+     organization_s = tostring(parse_json(organization_s).login),   
+     EventCount=int(1),
+     EventSchema='AuditEvent',
+     EventProduct='GithubWebhook',
+     EventVendor='Microsoft',
+     EventSchemaVersion='0.1',
+     Dvc='GithubWebhook',
+     EventStartTime=TimeGenerated,
+     EventEndTime=TimeGenerated,
+     Operation=action_s,
+     Type,
+     NewValue=tostring(parse_json(repository_s).name),
+     ObjectId = tostring(parse_json(repository_s).id),
+     EventUid=_ItemId,
+     EventOriginalType=event_s,
+     Object
+    |lookup EventDetailslookup on EventOriginalType
+    |extend User = ActorUsername,
+            Application =TargetAppName
+    |extend AdditionalFields = bag_pack("Team",team_s,
+                                  "Invitation",invitation_s,
+                                  "Organization",organization_s) 
+  };
+  parser (disabled = disabled)
