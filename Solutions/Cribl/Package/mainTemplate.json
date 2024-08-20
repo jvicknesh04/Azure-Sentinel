@@ -1,0 +1,772 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "author": "Cribl",
+    "comments": "Solution template for Cribl"
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Not used, but needed to pass arm-ttk test `Location-Should-Not-Be-Hardcoded`.  We instead use the `workspace-location` which is derived from the LA workspace"
+      }
+    },
+    "workspace-location": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "[concat('Region to deploy solution resources -- separate from location selection',parameters('location'))]"
+      }
+    },
+    "workspace": {
+      "defaultValue": "",
+      "type": "string",
+      "metadata": {
+        "description": "Workspace name for Log Analytics where Microsoft Sentinel is setup"
+      }
+    }
+  },
+    "variables": {
+    "solutionId": "criblinc1673975616879.microsoft-sentinel-solution-cribl",
+    "_solutionId": "[variables('solutionId')]",
+    "workspaceResourceId": "[resourceId('microsoft.OperationalInsights/Workspaces', parameters('workspace'))]",
+    "uiConfigId1": "Cribl",
+    "_uiConfigId1": "[variables('uiConfigId1')]",
+    "dataConnectorContentId1": "Cribl",
+    "_dataConnectorContentId1": "[variables('dataConnectorContentId1')]",
+    "dataConnectorId1": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/dataConnectors', variables('_dataConnectorContentId1'))]",
+    "_dataConnectorId1": "[variables('dataConnectorId1')]",
+    "dataConnectorTemplateSpecName1": "[concat(parameters('workspace'),'-dc-',uniquestring(variables('_dataConnectorContentId1')))]",
+    "dataConnectorVersion1": "1.0.0",
+    "parserVersion1": "1.0.0",
+    "parserContentId1": "CriblAccess-Parser",
+    "_parserContentId1": "[variables('parserContentId1')]",
+    "parserName1": "Parser for CriblAccess",
+    "_parserName1": "[concat(parameters('workspace'),'/',variables('parserName1'))]",
+    "parserId1": "[resourceId('Microsoft.OperationalInsights/workspaces/savedSearches', parameters('workspace'), variables('parserName1'))]",
+    "_parserId1": "[variables('parserId1')]",
+    "parserTemplateSpecName1": "[concat(parameters('workspace'),'-pr-',uniquestring(variables('_parserContentId1')))]",
+    "parserVersion2": "1.0.0",
+    "parserContentId2": "CriblAudit-Parser",
+    "_parserContentId2": "[variables('parserContentId2')]",
+    "parserName2": "Parser for CriblAudit",
+    "_parserName2": "[concat(parameters('workspace'),'/',variables('parserName2'))]",
+    "parserId2": "[resourceId('Microsoft.OperationalInsights/workspaces/savedSearches', parameters('workspace'), variables('parserName2'))]",
+    "_parserId2": "[variables('parserId2')]",
+    "parserTemplateSpecName2": "[concat(parameters('workspace'),'-pr-',uniquestring(variables('_parserContentId2')))]",
+    "parserVersion3": "1.0.0",
+    "parserContentId3": "CriblInternal-Parser",
+    "_parserContentId3": "[variables('parserContentId3')]",
+    "parserName3": "Parser for CriblInternal",
+    "_parserName3": "[concat(parameters('workspace'),'/',variables('parserName3'))]",
+    "parserId3": "[resourceId('Microsoft.OperationalInsights/workspaces/savedSearches', parameters('workspace'), variables('parserName3'))]",
+    "_parserId3": "[variables('parserId3')]",
+    "parserTemplateSpecName3": "[concat(parameters('workspace'),'-pr-',uniquestring(variables('_parserContentId3')))]",
+    "parserVersion4": "1.0.0",
+    "parserContentId4": "CriblUIAccess-Parser",
+    "_parserContentId4": "[variables('parserContentId4')]",
+    "parserName4": "Parser for CriblUIAccess",
+    "_parserName4": "[concat(parameters('workspace'),'/',variables('parserName4'))]",
+    "parserId4": "[resourceId('Microsoft.OperationalInsights/workspaces/savedSearches', parameters('workspace'), variables('parserName4'))]",
+    "_parserId4": "[variables('parserId4')]",
+    "parserTemplateSpecName4": "[concat(parameters('workspace'),'-pr-',uniquestring(variables('_parserContentId4')))]"
+    },
+    "resources": [
+      {
+         "type": "Microsoft.OperationalInsights/workspaces/providers/contentTemplates",
+      "apiVersion": "2023-04-01-preview",
+      "name": "[variables('dataConnectorTemplateSpecName1')]",
+      "location": "[parameters('workspace-location')]",
+      "dependsOn": [
+        "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/contentPackages', variables('_solutionId'))]"
+      ],
+      "properties": {
+        "description": "Cribl data connector with template version 1.0.0",
+        "displayName": "Cribl Template"
+      }
+      },
+          {
+      "type": "Microsoft.Resources/templateSpecs/versions",
+      "apiVersion": "2022-02-01",
+      "name": "[concat(variables('dataConnectorTemplateSpecName1'),'/',variables('dataConnectorVersion1'))]",
+      "location": "[parameters('workspace-location')]",
+      "tags": {
+        "hidden-sentinelWorkspaceId": "[variables('workspaceResourceId')]",
+        "hidden-sentinelContentType": "DataConnector"
+      },
+            "dependsOn": [
+        "[resourceId('Microsoft.Resources/templateSpecs', variables('dataConnectorTemplateSpecName1'))]"
+      ],
+      "properties": {
+        "description": "Cribl data connector",
+        "mainTemplate": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "[variables('dataConnectorVersion1')]",
+          "parameters": {},
+          "variables": {},
+          "resources": [
+            {
+              "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',variables('_dataConnectorContentId1'))]",
+              "apiVersion": "2021-03-01-preview",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectors",
+              "location": "[parameters('workspace-location')]",
+              "kind": "GenericUI",
+              "properties": {
+                "connectorUiConfig": {
+                  "id": "[variables('_uiConfigId1')]",
+                  "title": "Cribl",
+                  "publisher": "Cribl",
+                  "descriptionMarkdown": "The [Cribl](https://cribl.io/accelerate-cloud-migration/) connector allows you to easily connect your Cribl (Cribl Enterprise Edition - Standalone) logs with Microsoft Sentinel. This gives you more security insight into your organization's data pipelines.",
+                  "additionalRequirementBanner": "This data connector depends on three parsers based on a Kusto Function to work as expected [**Cribl Access Logs**](https://aka.ms/sentinel-CriblAccess-parser), [**Cribl Audit Logs**](https://aka.ms/sentinel-CriblAudit-parser) and [**Cribl Application Logs**](https://aka.ms/sentinel-CriblInternal-parser) which are deployed with the Microsoft Sentinel Solution.",
+                   "graphQueries": [
+                    {
+                      "metricName": "Cribl Internal Events",
+                      "legend": "CriblInternal",
+                      "baseQuery": "CriblInternal_CL"
+                    }
+                  ],
+                  "sampleQueries": [
+                    {
+                      "description": "Cribl Internal Logs",
+                      "query": "CriblInternal_CL | sort by TimeGenerated"
+                    },
+                    {
+                      "description": "Cribl Audit Logs",
+                      "query": "CriblAudit_CL | sort by TimeGenerated"
+                    },
+                    {
+                      "description": "Cribl Access Logs",
+                      "query": "CriblAccess_CL | sort by TimeGenerated"
+                    },
+                    {
+                      "description": "Cribl UI Access Logs",
+                      "query": "CriblUIAccess_CL | sort by TimeGenerated"
+                    }
+                  ],
+                  "dataTypes": [
+                      {
+                          "name": "CriblAccess_CL",
+                          "lastDataReceivedQuery": "CriblAccess_CL           | summarize Time = max(TimeGenerated)\n            | where isnotempty(Time)"
+                      },
+                      {
+                          "name": "CriblAudit_CL",
+                          "lastDataReceivedQuery": "CriblAudit_CL            | summarize Time = max(TimeGenerated)\n            | where isnotempty(Time)"
+                      },
+                      {
+                        "name": "CriblUIAccess_CL",
+                        "lastDataReceivedQuery": "CriblUIAccess_CL           | summarize Time = max(TimeGenerated)\n            | where isnotempty(Time)"
+                    },
+                    {
+                        "name": "CriblInternal_CL",
+                        "lastDataReceivedQuery": "CriblInternal_CL            | summarize Time = max(TimeGenerated)\n            | where isnotempty(Time)"
+                    }
+                  ],
+                  "connectivityCriterias": [
+                      {
+                          "type": "IsConnectedQuery",
+                          "value": [
+                              "CriblInternal_CL\n            | summarize LastLogReceived = max(TimeGenerated)\n            | project IsConnected = LastLogReceived > ago(30d)",
+                              "CriblAudit_CL\n           | summarize LastLogReceived = max(TimeGenerated)\n            | project IsConnected = LastLogReceived > ago(30d)",
+                              "CriblAccess_CL\n            | summarize LastLogReceived = max(TimeGenerated)\n            | project IsConnected = LastLogReceived > ago(30d)",
+                              "CriblUIAccess_CL\n           | summarize LastLogReceived = max(TimeGenerated)\n            | project IsConnected = LastLogReceived > ago(30d)"
+                          ]
+                      }
+                  ],
+                  "availability": {
+                    "status": 1,
+                    "isPreview": false
+                  },
+                  "permissions": {
+                    "resourceProvider": [
+                      {
+                        "provider": "Microsoft.OperationalInsights/workspaces",
+                        "permissionsDisplayText": "write permission is required.",
+                        "providerDisplayName": "Workspace",
+                        "scope": "Workspace",
+                        "requiredPermissions": {
+                          "write": true,
+                          "read": true,
+                          "delete": true
+                        }
+                      }
+                    ]
+                  },
+                 "instructionSteps": [
+                    {
+                      "title": "Installation and setup instructions for Cribl Stream for Microsoft Sentinel",
+                      "description": "Use the documentation from this Github repository and configure using the [Cribl Stream Setup Guide for Microsoft Sentinel](https://docs.cribl.io/stream/usecase-azure-workspace/)."
+                    }
+                  ],
+                  "id": "[variables('_uiConfigId1')]",
+                  "additionalRequirementsBanner": "This data connector depends on a parser based on a Kusto Function to work as expected [**CriblAccess**](https://aka.ms/sentinel-criblaccess-parser), [**CriblAudit**](https://aka.ms/sentinel-criblaudit-parser), [**CriblInternal**](https://aka.ms/sentinel-criblinternal-parser), [**CriblUIAccess**](https://aka.ms/sentinel-cribluiaccess-parser) which is deployed with the Microsoft Sentinel Solution."
+                  }
+                }
+            },
+            {
+    "type": "Microsoft.Resources/templateSpecs",
+    "apiVersion": "2022-02-01",
+    "name": "[variables('parserTemplateSpecName1')]",
+    "location": "[parameters('workspace-location')]",
+    "tags": {
+      "hidden-sentinelWorkspaceId": "[variables('workspaceResourceId')]",
+      "hidden-sentinelContentType": "Parser"
+    },
+    "properties": {
+      "description": "CriblAccess Data Parser with template",
+      "displayName": "CriblAccess Data Parser template"
+    }
+  },
+  {
+    "type": "Microsoft.Resources/templateSpecs/versions",
+    "apiVersion": "2022-02-01",
+    "name": "[concat(variables('parserTemplateSpecName1'),'/',variables('parserVersion1'))]",
+    "location": "[parameters('workspace-location')]",
+    "tags": {
+      "hidden-sentinelWorkspaceId": "[variables('workspaceResourceId')]",
+      "hidden-sentinelContentType": "Parser"
+    },
+    "dependsOn": [
+      "[resourceId('Microsoft.Resources/templateSpecs', variables('parserTemplateSpecName1'))]"
+    ],
+    "properties": {
+      "description": "CriblAccess Data Parser with template version 1.0.0",
+      "mainTemplate": {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+        "contentVersion": "[variables('parserVersion1')]",
+        "parameters": {},
+        "variables": {},
+        "resources": [
+          {
+            "name": "[variables('_parserName1')]",
+            "apiVersion": "2020-08-01",
+            "type": "Microsoft.OperationalInsights/workspaces/savedSearches",
+            "location": "[parameters('workspace-location')]",
+            "properties": {
+              "eTag": "*",
+              "displayName": "CriblAudit Data Parser",
+              "category": "Samples",
+              "functionAlias": "CriblAccess",
+              "query": "CriblAccess_CL",
+              "version": "1.0.0",
+              "tags": [
+                {
+                  "name": "description",
+                  "value": "CriblAudit Data Parser"
+                }
+              ]
+            }
+          },
+          {
+            "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+            "apiVersion": "2022-01-01-preview",
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('Parser-', last(split(variables('_parserId1'),'/'))))]",
+            "dependsOn": [
+              "[variables('_parserName1')]"
+            ],
+            "properties": {
+              "parentId": "[resourceId('Microsoft.OperationalInsights/workspaces/savedSearches', parameters('workspace'), variables('parserName1'))]",
+              "contentId": "[variables('_parserContentId1')]",
+              "kind": "Parser",
+              "version": "[variables('parserVersion1')]",
+              "source": {
+                "name": "CriblAccess",
+                "kind": "Solution",
+                "sourceId": "[variables('_solutionId')]"
+              },
+              "author": {
+                "name": "Cribl"
+              },
+              "support": {
+                "name": "Cribl",
+                "tier": "Partner",
+                "link": "https://cribl.io/support"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "Microsoft.OperationalInsights/workspaces/savedSearches",
+    "apiVersion": "2022-10-01",
+    "name": "[variables('_parserName1')]",
+    "location": "[parameters('workspace-location')]",
+    "properties": {
+      "eTag": "*",
+      "displayName": "CriblAudit Data Parser",
+      "category": "Samples",
+      "functionAlias": "CriblAccess",
+      "query": "CriblAccess_CL",
+      "version": "1.0.0"
+    }
+  },
+  {
+    "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+    "apiVersion": "2022-01-01-preview",
+    "location": "[parameters('workspace-location')]",
+    "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('Parser-', last(split(variables('_parserId1'),'/'))))]",
+    "dependsOn": [
+      "[variables('_parserId1')]"
+    ],
+    "properties": {
+      "parentId": "[resourceId('Microsoft.OperationalInsights/workspaces/savedSearches', parameters('workspace'), variables('parserName1'))]",
+      "contentId": "[variables('_parserContentId1')]",
+      "kind": "Parser",
+      "version": "[variables('parserVersion1')]",
+      "source": {
+        "kind": "Solution",
+        "name": "CriblAccess",
+        "sourceId": "[variables('_solutionId')]"
+      },
+      "author": {
+        "name": "Cribl"
+      },
+      "support": {
+        "name": "Cribl",
+        "tier": "Partner",
+        "link": "https://cribl.io/support"
+      }
+    }
+  },
+  {
+    "type": "Microsoft.Resources/templateSpecs",
+    "apiVersion": "2022-02-01",
+    "name": "[variables('parserTemplateSpecName2')]",
+    "location": "[parameters('workspace-location')]",
+    "tags": {
+      "hidden-sentinelWorkspaceId": "[variables('workspaceResourceId')]",
+      "hidden-sentinelContentType": "Parser"
+    },
+    "properties": {
+      "description": "CriblAudit Data Parser with template",
+      "displayName": "CriblAudit Data Parser template"
+    }
+  },
+  {
+    "type": "Microsoft.Resources/templateSpecs/versions",
+    "apiVersion": "2022-02-01",
+    "name": "[concat(variables('parserTemplateSpecName2'),'/',variables('parserVersion2'))]",
+    "location": "[parameters('workspace-location')]",
+    "tags": {
+      "hidden-sentinelWorkspaceId": "[variables('workspaceResourceId')]",
+      "hidden-sentinelContentType": "Parser"
+    },
+    "dependsOn": [
+      "[resourceId('Microsoft.Resources/templateSpecs', variables('parserTemplateSpecName2'))]"
+    ],
+    "properties": {
+      "description": "CriblAudit Data Parser with template version 1.0.0",
+      "mainTemplate": {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+        "contentVersion": "[variables('parserVersion2')]",
+        "parameters": {},
+        "variables": {},
+        "resources": [
+          {
+            "name": "[variables('_parserName2')]",
+            "apiVersion": "2020-08-01",
+            "type": "Microsoft.OperationalInsights/workspaces/savedSearches",
+            "location": "[parameters('workspace-location')]",
+            "properties": {
+              "eTag": "*",
+              "displayName": "CriblAudit Data Parser",
+              "category": "Samples",
+              "functionAlias": "CriblAudit",
+              "query": "CriblAudit_CL",
+              "version": "1.0.0",
+              "tags": [
+                {
+                  "name": "description",
+                  "value": "CriblAudit Data Parser"
+                }
+              ]
+            }
+          },
+          {
+            "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+            "apiVersion": "2022-01-01-preview",
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('Parser-', last(split(variables('_parserId2'),'/'))))]",
+            "dependsOn": [
+              "[variables('_parserName2')]"
+            ],
+            "properties": {
+              "parentId": "[resourceId('Microsoft.OperationalInsights/workspaces/savedSearches', parameters('workspace'), variables('parserName2'))]",
+              "contentId": "[variables('_parserContentId2')]",
+              "kind": "Parser",
+              "version": "[variables('parserVersion2')]",
+              "source": {
+                "name": "CriblAudit",
+                "kind": "Solution",
+                "sourceId": "[variables('_solutionId')]"
+              },
+              "author": {
+                "name": "Cribl"
+              },
+              "support": {
+                "name": "Cribl",
+                "tier": "Partner",
+                "link": "https://cribl.io/support"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "Microsoft.OperationalInsights/workspaces/savedSearches",
+    "apiVersion": "2022-10-01",
+    "name": "[variables('_parserName2')]",
+    "location": "[parameters('workspace-location')]",
+    "properties": {
+      "eTag": "*",
+      "displayName": "CriblAudit Data Parser",
+      "category": "Samples",
+      "functionAlias": "CriblAudit",
+      "query": "CriblAudit_CL",
+      "version": "1.0.0"
+    }
+  },
+  {
+    "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+    "apiVersion": "2022-01-01-preview",
+    "location": "[parameters('workspace-location')]",
+    "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('Parser-', last(split(variables('_parserId2'),'/'))))]",
+    "dependsOn": [
+      "[variables('_parserId2')]"
+    ],
+    "properties": {
+      "parentId": "[resourceId('Microsoft.OperationalInsights/workspaces/savedSearches', parameters('workspace'), variables('parserName2'))]",
+      "contentId": "[variables('_parserContentId2')]",
+      "kind": "Parser",
+      "version": "[variables('parserVersion2')]",
+      "source": {
+        "kind": "Solution",
+        "name": "CriblAudit",
+        "sourceId": "[variables('_solutionId')]"
+      },
+      "author": {
+        "name": "Cribl"
+      },
+      "support": {
+        "name": "Cribl",
+        "tier": "Partner",
+        "link": "https://cribl.io/support"
+      }
+    }
+  },
+  {
+    "type": "Microsoft.Resources/templateSpecs",
+    "apiVersion": "2022-02-01",
+    "name": "[variables('parserTemplateSpecName3')]",
+    "location": "[parameters('workspace-location')]",
+    "tags": {
+      "hidden-sentinelWorkspaceId": "[variables('workspaceResourceId')]",
+      "hidden-sentinelContentType": "Parser"
+    },
+    "properties": {
+      "description": "CriblInternal Data Parser with template",
+      "displayName": "CriblInternal Data Parser template"
+    }
+  },
+  {
+    "type": "Microsoft.Resources/templateSpecs/versions",
+    "apiVersion": "2022-02-01",
+    "name": "[concat(variables('parserTemplateSpecName3'),'/',variables('parserVersion3'))]",
+    "location": "[parameters('workspace-location')]",
+    "tags": {
+      "hidden-sentinelWorkspaceId": "[variables('workspaceResourceId')]",
+      "hidden-sentinelContentType": "Parser"
+    },
+    "dependsOn": [
+      "[resourceId('Microsoft.Resources/templateSpecs', variables('parserTemplateSpecName3'))]"
+    ],
+    "properties": {
+      "description": "CriblInternal Data Parser with template version 1.0.0",
+      "mainTemplate": {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+        "contentVersion": "[variables('parserVersion3')]",
+        "parameters": {},
+        "variables": {},
+        "resources": [
+          {
+            "name": "[variables('_parserName3')]",
+            "apiVersion": "2020-08-01",
+            "type": "Microsoft.OperationalInsights/workspaces/savedSearches",
+            "location": "[parameters('workspace-location')]",
+            "properties": {
+              "eTag": "*",
+              "displayName": "CriblInternal Data Parser",
+              "category": "Samples",
+              "functionAlias": "CriblInternal",
+              "query": "CriblInternal_CL",
+              "version": "1.0.0",
+              "tags": [
+                {
+                  "name": "description",
+                  "value": "CriblInternal Data Parser"
+                }
+              ]
+            }
+          },
+          {
+            "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+            "apiVersion": "2022-01-01-preview",
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('Parser-', last(split(variables('_parserId3'),'/'))))]",
+            "dependsOn": [
+              "[variables('_parserName3')]"
+            ],
+            "properties": {
+              "parentId": "[resourceId('Microsoft.OperationalInsights/workspaces/savedSearches', parameters('workspace'), variables('parserName3'))]",
+              "contentId": "[variables('_parserContentId3')]",
+              "kind": "Parser",
+              "version": "[variables('parserVersion3')]",
+              "source": {
+                "name": "CriblInternal",
+                "kind": "Solution",
+                "sourceId": "[variables('_solutionId')]"
+              },
+              "author": {
+                "name": "Cribl"
+              },
+              "support": {
+                "name": "Cribl",
+                "tier": "Partner",
+                "link": "https://cribl.io/support"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "Microsoft.OperationalInsights/workspaces/savedSearches",
+    "apiVersion": "2022-10-01",
+    "name": "[variables('_parserName3')]",
+    "location": "[parameters('workspace-location')]",
+    "properties": {
+      "eTag": "*",
+      "displayName": "CriblInternal Data Parser",
+      "category": "Samples",
+      "functionAlias": "CriblInternal",
+      "query": "CriblInternal_CL",
+      "version": "1.0.0"
+    }
+  },
+  {
+    "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+    "apiVersion": "2022-01-01-preview",
+    "location": "[parameters('workspace-location')]",
+    "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('Parser-', last(split(variables('_parserId3'),'/'))))]",
+    "dependsOn": [
+      "[variables('_parserId3')]"
+    ],
+    "properties": {
+      "parentId": "[resourceId('Microsoft.OperationalInsights/workspaces/savedSearches', parameters('workspace'), variables('parserName3'))]",
+      "contentId": "[variables('_parserContentId3')]",
+      "kind": "Parser",
+      "version": "[variables('parserVersion3')]",
+      "source": {
+        "kind": "Solution",
+        "name": "CriblInternal",
+        "sourceId": "[variables('_solutionId')]"
+      },
+      "author": {
+        "name": "Cribl"
+      },
+      "support": {
+        "name": "Cribl",
+        "tier": "Partner",
+        "link": "https://cribl.io/support"
+      }
+    }
+  },
+  {
+    "type": "Microsoft.Resources/templateSpecs",
+    "apiVersion": "2022-02-01",
+    "name": "[variables('parserTemplateSpecName4')]",
+    "location": "[parameters('workspace-location')]",
+    "tags": {
+      "hidden-sentinelWorkspaceId": "[variables('workspaceResourceId')]",
+      "hidden-sentinelContentType": "Parser"
+    },
+    "properties": {
+      "description": "CriblUIAccess Data Parser with template",
+      "displayName": "CriblUIAccess Data Parser template"
+    }
+  },
+  {
+    "type": "Microsoft.Resources/templateSpecs/versions",
+    "apiVersion": "2022-02-01",
+    "name": "[concat(variables('parserTemplateSpecName4'),'/',variables('parserVersion4'))]",
+    "location": "[parameters('workspace-location')]",
+    "tags": {
+      "hidden-sentinelWorkspaceId": "[variables('workspaceResourceId')]",
+      "hidden-sentinelContentType": "Parser"
+    },
+    "dependsOn": [
+      "[resourceId('Microsoft.Resources/templateSpecs', variables('parserTemplateSpecName4'))]"
+    ],
+    "properties": {
+      "description": "CriblUIAccess Data Parser with template version 1.0.0",
+      "mainTemplate": {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+        "contentVersion": "[variables('parserVersion4')]",
+        "parameters": {},
+        "variables": {},
+        "resources": [
+          {
+            "name": "[variables('_parserName4')]",
+            "apiVersion": "2020-08-01",
+            "type": "Microsoft.OperationalInsights/workspaces/savedSearches",
+            "location": "[parameters('workspace-location')]",
+            "properties": {
+              "eTag": "*",
+              "displayName": "CriblUIAccess Data Parser",
+              "category": "Samples",
+              "functionAlias": "CriblUIAccess",
+              "query": "CriblUIAccess_CL",
+              "version": "1.0.0",
+              "tags": [
+                {
+                  "name": "description",
+                  "value": "CriblUIAccess Data Parser"
+                }
+              ]
+            }
+          },
+          {
+            "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+            "apiVersion": "2022-01-01-preview",
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('Parser-', last(split(variables('_parserId4'),'/'))))]",
+            "dependsOn": [
+              "[variables('_parserName4')]"
+            ],
+            "properties": {
+              "parentId": "[resourceId('Microsoft.OperationalInsights/workspaces/savedSearches', parameters('workspace'), variables('parserName4'))]",
+              "contentId": "[variables('_parserContentId4')]",
+              "kind": "Parser",
+              "version": "[variables('parserVersion4')]",
+              "source": {
+                "name": "CriblUIAccess",
+                "kind": "Solution",
+                "sourceId": "[variables('_solutionId')]"
+              },
+              "author": {
+                "name": "Cribl"
+              },
+              "support": {
+                "name": "Cribl",
+                "tier": "Partner",
+                "link": "https://cribl.io/support"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "Microsoft.OperationalInsights/workspaces/savedSearches",
+    "apiVersion": "2022-10-01",
+    "name": "[variables('_parserName4')]",
+    "location": "[parameters('workspace-location')]",
+    "properties": {
+      "eTag": "*",
+      "displayName": "CriblUIAccess Data Parser",
+      "category": "Samples",
+      "functionAlias": "CriblUIAccess",
+      "query": "CriblUIAccess_CL",
+      "version": "1.0.0"
+    }
+  },
+  {
+    "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+    "apiVersion": "2022-01-01-preview",
+    "location": "[parameters('workspace-location')]",
+    "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('Parser-', last(split(variables('_parserId4'),'/'))))]",
+    "dependsOn": [
+      "[variables('_parserId4')]"
+    ],
+    "properties": {
+      "parentId": "[resourceId('Microsoft.OperationalInsights/workspaces/savedSearches', parameters('workspace'), variables('parserName4'))]",
+      "contentId": "[variables('_parserContentId4')]",
+      "kind": "Parser",
+      "version": "[variables('parserVersion4')]",
+      "source": {
+        "kind": "Solution",
+        "name": "CriblUIAccess",
+        "sourceId": "[variables('_solutionId')]"
+      },
+      "author": {
+        "name": "Cribl"
+      },
+      "support": {
+        "name": "Cribl",
+        "tier": "Partner",
+        "link": "https://cribl.io/support"
+      }
+    }
+  },
+  {
+      "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+      "apiVersion": "2022-01-01-preview",
+      "location": "[parameters('workspace-location')]",
+      "properties": {
+        "version": "2.0.1",
+        "kind": "Solution",
+        "contentSchemaVersion": "2.0.0",
+        "contentId": "[variables('_solutionId')]",
+        "parentId": "[variables('_solutionId')]",
+        "source": {
+          "kind": "Solution",
+          "name": "Cribl",
+          "sourceId": "[variables('_solutionId')]"
+        },
+        "author": {
+          "name": "Cribl"
+        },
+        "support": {
+          "name": "Cribl",
+          "tier": "Partner",
+          "link": "https://cribl.io/support"
+        },
+        "dependencies": {
+          "operator": "AND",
+          "criteria": [
+            {
+              "kind": "DataConnector",
+              "contentId": "[variables('_dataConnectorContentId1')]",
+              "version": "[variables('dataConnectorVersion1')]"
+            },
+            {
+              "kind": "Parser",
+              "contentId": "[variables('_parserContentId1')]",
+              "version": "[variables('parserVersion1')]"
+            }
+          ]
+        },
+        "firstPublishDate": "2024-08-13",
+        "providers": [
+          "Cribl"
+        ],
+        "categories": {
+          "domains": [
+            "Security - Others"
+          ]
+        }
+      },
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/', variables('_solutionId'))]"
+    }
+  ],
+  "outputs": {}
+          }
+       }
+     }
+   ]
+}

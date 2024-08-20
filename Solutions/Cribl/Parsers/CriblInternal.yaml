@@ -1,0 +1,32 @@
+id: b934592c-d6b6-48f3-949e-415658687c8e
+Function:
+  Title: Parser for CriblInternal
+  Version: '1.0.0'
+  LastUpdated: '2024-08-01'
+Category: Microsoft Sentinel Parser
+FunctionName: CriblInternal
+FunctionAlias: CriblInternal
+FunctionQuery: |
+  CriblInternal_CL
+  | rename-field 
+  TimeGenerated as TimeGenerated_i, 
+  dataset as dataset_s, 
+  source as source_s, 
+  cid as cid_s, 
+  channel as channel_s, 
+  level as level_s, 
+  message as message_s, 
+  reason as reason_s, 
+  provider as provider_s, 
+  user as user_s, 
+  _raw as _raw_s, 
+  cribl_breaker as cribl_breaker_s, 
+  saas_domain as saas_domain_s, 
+  accountId as accountId_s, 
+  tenantId as tenantId_s, 
+  deployment as deployment_s, 
+  workspace as workspace_s, 
+  fleet as fleet_s, 
+  instance as instance_s, 
+  service as service_s, 
+  data_source as data_source_s

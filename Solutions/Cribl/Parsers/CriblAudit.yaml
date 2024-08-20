@@ -1,0 +1,30 @@
+id : f5e93f79-9e3c-4505-a52e-e634988a8bdb
+Function:
+  Title: Parser for CriblAudit
+  Version: '1.0.0'
+  LastUpdated: '2024-08-01'
+Category: Microsoft Sentinel Parser
+FunctionName: CriblAudit
+FunctionAlias: CriblAudit
+FunctionQuery: |
+    CriblAudit_CL
+    | rename-field TimeGenerated as TimeGenerated_i, 
+    dataset as dataset_s, 
+    source as source_s, 
+    action as action_s, 
+    type as type_s, 
+    user as user_s, 
+    id as id_s, 
+    requestId as requestId_s, 
+    group as group_s, 
+    _raw as _raw_s, 
+    cribl_breaker as cribl_breaker_s, 
+    saas_domain as saas_domain_s, 
+    tenantId as tenantId_s, 
+    deployment as deployment_s, 
+    workspace as workspace_s, 
+    fleet as fleet_s, 
+    instance as instance_s, 
+    service as service_s, 
+    sourceType as sourceType_s, 
+    data_source as data_source_s
